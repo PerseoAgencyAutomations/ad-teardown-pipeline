@@ -1,0 +1,132 @@
+<mxfile host="app.diagrams.net">
+  <diagram name="MAIN - poll + fan-out" id="main">
+    <mxGraphModel dx="900" dy="700" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="760" pageHeight="720" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="m_manual" value="Test manually&#10;(Manual Trigger)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="60" y="40" width="180" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="m_sched" value="Every 4h&#10;(Schedule · cron 0 */4 * * *)&#10;disabled ate validar" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;dashed=1;" vertex="1" parent="1">
+          <mxGeometry x="300" y="30" width="220" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="m_cfg" value="Config&#10;(Code) — notionDataSourceId, telegramChatId,&#10;openrouterModel, maxAdsAnalisados, maxPagesPorRun" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;" vertex="1" parent="1">
+          <mxGeometry x="120" y="150" width="360" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="m_query" value="Find To do&#10;(Notion · databasePage:getAll)&#10;filterJson Status = &quot;To do&quot; · limit maxPagesPorRun" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="120" y="260" width="360" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="m_pack" value="Pack for sub&#10;(Code) — { page, cfg } por pagina" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;" vertex="1" parent="1">
+          <mxGeometry x="120" y="360" width="360" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="m_proc" value="Process teardown&#10;(Execute Sub-workflow · mode: each · onError: continue)&#10;1x por pagina → SUB" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="120" y="450" width="360" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="m_resumo" value="Summary&#10;(Code) — agrega ok / erro" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;" vertex="1" parent="1">
+          <mxGeometry x="120" y="550" width="360" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="m_tg" value="Notify Telegram&#10;(Telegram · sendMessage) — resumo do run" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="120" y="630" width="360" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="me1" style="edgeStyle=orthogonalEdgeStyle;html=1;endArrow=block;" edge="1" parent="1" source="m_manual" target="m_cfg"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="me2" style="edgeStyle=orthogonalEdgeStyle;html=1;endArrow=block;" edge="1" parent="1" source="m_sched" target="m_cfg"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="me3" style="edgeStyle=orthogonalEdgeStyle;html=1;endArrow=block;" edge="1" parent="1" source="m_cfg" target="m_query"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="me4" style="edgeStyle=orthogonalEdgeStyle;html=1;endArrow=block;" edge="1" parent="1" source="m_query" target="m_pack"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="me5" value="1 item/pagina" style="edgeStyle=orthogonalEdgeStyle;html=1;endArrow=block;" edge="1" parent="1" source="m_pack" target="m_proc"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="me6" value="{ brand, page_id, notion_page_id, teardown{...} }" style="edgeStyle=orthogonalEdgeStyle;html=1;endArrow=block;" edge="1" parent="1" source="m_proc" target="m_resumo"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="me7" style="edgeStyle=orthogonalEdgeStyle;html=1;endArrow=block;" edge="1" parent="1" source="m_resumo" target="m_tg"><mxGeometry relative="1" as="geometry" /></mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+
+  <diagram name="SUB - 1 teardown" id="sub">
+    <mxGraphModel dx="900" dy="700" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="820" pageHeight="1560" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="s_in" value="When called&#10;(Execute Workflow Trigger · passthrough)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="200" y="40" width="260" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="s_parse" value="Parse page&#10;(Code) — pageId, folderId, brand, niche" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;" vertex="1" parent="1">
+          <mxGeometry x="200" y="130" width="260" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="s_analyz" value="Mark Analyzing&#10;(Notion · databasePage:update) Status → Analyzing" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="200" y="220" width="260" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="s_list" value="List files&#10;(Google Drive · fileFolder:search) '&lt;folderId&gt;' in parents" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;" vertex="1" parent="1">
+          <mxGeometry x="200" y="310" width="260" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="s_sep" value="Split out&#10;(Code) — contexto.json id + ids img/cover (cap) + ids mp4 (cap 0)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;" vertex="1" parent="1">
+          <mxGeometry x="200" y="400" width="260" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="s_check" value="Tem contexto.json&#10;+ imagem?" style="rhombus;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+          <mxGeometry x="240" y="490" width="180" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="s_err" value="Mark Error&#10;(Notion update · Status → Error)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="1">
+          <mxGeometry x="530" y="480" width="220" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="s_errret" value="Return error&#10;(Code) — { brand, page_id, erro: true }" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="1">
+          <mxGeometry x="530" y="560" width="220" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="s_getctx" value="Download context&#10;(Google Drive · file:download contexto.json)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;" vertex="1" parent="1">
+          <mxGeometry x="200" y="610" width="260" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="s_ctxjson" value="contexto → json&#10;(Extract from File · fromJson) → $json.data" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;" vertex="1" parent="1">
+          <mxGeometry x="200" y="700" width="260" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="s_limg" value="List images&#10;(Code) — 1 item por imageFileId" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;" vertex="1" parent="1">
+          <mxGeometry x="200" y="790" width="260" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="s_getimg" value="Download image&#10;(Google Drive · file:download · fan-out · onError continue)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;" vertex="1" parent="1">
+          <mxGeometry x="200" y="880" width="260" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="s_prompt" value="Build vision prompt&#10;(Code) — system=rubrica (pede prosa + bloco json)&#10;user=copy + imagens base64" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;" vertex="1" parent="1">
+          <mxGeometry x="200" y="970" width="260" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="s_td" value="OpenRouter - teardown&#10;(HTTP · POST /chat/completions · cred openRouterApi)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="1">
+          <mxGeometry x="200" y="1070" width="260" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="s_mk" value="Build teardown.txt&#10;(Code) — prosa → texto/md · bloco json → structured" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;" vertex="1" parent="1">
+          <mxGeometry x="200" y="1160" width="260" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="s_file" value="teardown.txt → file&#10;(Convert to File · toText)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;" vertex="1" parent="1">
+          <mxGeometry x="200" y="1250" width="260" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="s_up" value="Upload teardown.txt&#10;(Google Drive · file:upload na pasta da marca)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;" vertex="1" parent="1">
+          <mxGeometry x="200" y="1330" width="260" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="s_wr" value="Write to Notion&#10;(Notion · page:updateMarkdown replace_content) — corpo da pagina" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="200" y="1410" width="260" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="s_done" value="Mark Done&#10;(Notion · databasePage:update) Status → Done" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="200" y="1500" width="260" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="s_ret" value="Return&#10;(Code) — { brand, page_id, notion_page_id, teardown{...structured} }" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;" vertex="1" parent="1">
+          <mxGeometry x="200" y="1590" width="260" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="s_note_or" value="OpenRouter falha → pagina fica em Analyzing (visivelmente presa). Sem onError=continue aqui. Video: MVP nao manda (cap 0) — enhancement Gemini direto." style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;align=left;" vertex="1" parent="1">
+          <mxGeometry x="520" y="1070" width="270" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="se1" value="{ page, cfg }" style="edgeStyle=orthogonalEdgeStyle;html=1;endArrow=block;" edge="1" parent="1" source="s_in" target="s_parse"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="se2" style="edgeStyle=orthogonalEdgeStyle;html=1;endArrow=block;" edge="1" parent="1" source="s_parse" target="s_analyz"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="se3" style="edgeStyle=orthogonalEdgeStyle;html=1;endArrow=block;" edge="1" parent="1" source="s_analyz" target="s_list"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="se4" style="edgeStyle=orthogonalEdgeStyle;html=1;endArrow=block;" edge="1" parent="1" source="s_list" target="s_sep"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="se5" style="edgeStyle=orthogonalEdgeStyle;html=1;endArrow=block;" edge="1" parent="1" source="s_sep" target="s_check"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="se6" value="nao (sem_dados)" style="edgeStyle=orthogonalEdgeStyle;html=1;endArrow=block;" edge="1" parent="1" source="s_check" target="s_err"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="se7" style="edgeStyle=orthogonalEdgeStyle;html=1;endArrow=block;" edge="1" parent="1" source="s_err" target="s_errret"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="se8" value="sim" style="edgeStyle=orthogonalEdgeStyle;html=1;endArrow=block;" edge="1" parent="1" source="s_check" target="s_getctx"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="se9" style="edgeStyle=orthogonalEdgeStyle;html=1;endArrow=block;" edge="1" parent="1" source="s_getctx" target="s_ctxjson"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="se10" style="edgeStyle=orthogonalEdgeStyle;html=1;endArrow=block;" edge="1" parent="1" source="s_ctxjson" target="s_limg"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="se11" style="edgeStyle=orthogonalEdgeStyle;html=1;endArrow=block;" edge="1" parent="1" source="s_limg" target="s_getimg"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="se12" value="N imagens binarias" style="edgeStyle=orthogonalEdgeStyle;html=1;endArrow=block;" edge="1" parent="1" source="s_getimg" target="s_prompt"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="se13" style="edgeStyle=orthogonalEdgeStyle;html=1;endArrow=block;" edge="1" parent="1" source="s_prompt" target="s_td"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="se14" value="teardown (prosa + json)" style="edgeStyle=orthogonalEdgeStyle;html=1;endArrow=block;" edge="1" parent="1" source="s_td" target="s_mk"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="se15" style="edgeStyle=orthogonalEdgeStyle;html=1;endArrow=block;" edge="1" parent="1" source="s_mk" target="s_file"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="se16" style="edgeStyle=orthogonalEdgeStyle;html=1;endArrow=block;" edge="1" parent="1" source="s_file" target="s_up"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="se17" style="edgeStyle=orthogonalEdgeStyle;html=1;endArrow=block;" edge="1" parent="1" source="s_up" target="s_wr"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="se18" style="edgeStyle=orthogonalEdgeStyle;html=1;endArrow=block;" edge="1" parent="1" source="s_wr" target="s_done"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="se19" style="edgeStyle=orthogonalEdgeStyle;html=1;endArrow=block;" edge="1" parent="1" source="s_done" target="s_ret"><mxGeometry relative="1" as="geometry" /></mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
